@@ -538,6 +538,18 @@
 		ECEC415E939B13D8C959F8D7 /* libhwy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C3D4EBA94DA7A5C543A337E /* libhwy.a */; };
 		EF05486C9854302CD39A0B80 /* libhwy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 667B4E3FBC5B03611D5C334E /* libhwy.a */; };
 		F7CA439883B85807B560AF67 /* libhwy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 667B4E3FBC5B03611D5C334E /* libhwy.a */; };
+		F85640732E06A116005C8AD7 /* json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F85640722E06A116005C8AD7 /* json.cpp */; };
+		F85640742E06A116005C8AD7 /* json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F85640722E06A116005C8AD7 /* json.cpp */; };
+		F85640752E06A116005C8AD7 /* json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F85640722E06A116005C8AD7 /* json.cpp */; };
+		F85640762E06A116005C8AD7 /* json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F85640722E06A116005C8AD7 /* json.cpp */; };
+		F869ABAD2E05606300A1945F /* ollama.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F869ABAC2E05605E00A1945F /* ollama.cpp */; };
+		F869ABAE2E05606300A1945F /* ollama.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F869ABAC2E05605E00A1945F /* ollama.cpp */; };
+		F869ABAF2E05606300A1945F /* ollama.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F869ABAC2E05605E00A1945F /* ollama.cpp */; };
+		F869ABB02E05606300A1945F /* ollama.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F869ABAC2E05605E00A1945F /* ollama.cpp */; };
+		F8DA83E02E05E3BB00206681 /* llm-binding.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8DA83DF2E05E3B500206681 /* llm-binding.cpp */; };
+		F8DA83E12E05E3BB00206681 /* llm-binding.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8DA83DF2E05E3B500206681 /* llm-binding.cpp */; };
+		F8DA83E22E05E3BB00206681 /* llm-binding.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8DA83DF2E05E3B500206681 /* llm-binding.cpp */; };
+		F8DA83E32E05E3BB00206681 /* llm-binding.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8DA83DF2E05E3B500206681 /* llm-binding.cpp */; };
 		FE5204162A08E27D0070038A /* CoreHaptics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE5204152A08E27D0070038A /* CoreHaptics.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		FE5204172A08E2880070038A /* CoreHaptics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE5204152A08E27D0070038A /* CoreHaptics.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		FE5204182A08E28F0070038A /* CoreHaptics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE5204152A08E27D0070038A /* CoreHaptics.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -1145,6 +1157,11 @@
 		96D8EDD028728DCA00A331EA /* gamecontrollerdb.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = gamecontrollerdb.txt; path = ../assets/gamecontrollerdb.txt; sourceTree = "<group>"; };
 		A8AA4AE49BB66C97EFAE3055 /* libbrotlicommon-static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libbrotlicommon-static.a"; path = "Dependencies/build-macosx-universal/lib/libbrotlicommon-static.a"; sourceTree = "<group>"; };
 		CBEA4C45BE737EE0FF5A8A4C /* bicubic.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = bicubic.frag; path = ../shader/bicubic.frag; sourceTree = "<group>"; };
+		F85640712E06A116005C8AD7 /* json.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = json.h; sourceTree = "<group>"; };
+		F85640722E06A116005C8AD7 /* json.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = json.cpp; sourceTree = "<group>"; };
+		F869ABAB2E055E7500A1945F /* ollama.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ollama.h; sourceTree = "<group>"; };
+		F869ABAC2E05605E00A1945F /* ollama.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ollama.cpp; sourceTree = "<group>"; };
+		F8DA83DF2E05E3B500206681 /* llm-binding.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llm-binding.cpp"; sourceTree = "<group>"; };
 		FE5204152A08E27D0070038A /* CoreHaptics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreHaptics.framework; path = System/Library/Frameworks/CoreHaptics.framework; sourceTree = SDKROOT; };
 		FE52041A2A08E58D0070038A /* lanczos3.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = lanczos3.frag; path = ../shader/lanczos3.frag; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1423,6 +1440,7 @@
 				3B10ED522568E95D00372D13 /* filesystem */,
 				3B10ED442568E95D00372D13 /* input */,
 				3B522DB1259BBFE9003301C4 /* net */,
+				F869ABAA2E055E4F00A1945F /* llm */,
 				3B10ED582568E95D00372D13 /* system */,
 				9656358D279A5B74003D6A75 /* theoraplay */,
 				3B10ED392568E95D00372D13 /* util */,
@@ -1602,6 +1620,9 @@
 		3B10EDD52568E96A00372D13 /* binding */ = {
 			isa = PBXGroup;
 			children = (
+				F85640712E06A116005C8AD7 /* json.h */,
+				F85640722E06A116005C8AD7 /* json.cpp */,
+				F8DA83DF2E05E3B500206681 /* llm-binding.cpp */,
 				3B10EDDA2568E96A00372D13 /* audio-binding.cpp */,
 				3B10EDF02568E96A00372D13 /* binding-mri.cpp */,
 				3B10EDEF2568E96A00372D13 /* binding-util.cpp */,
@@ -1932,6 +1953,15 @@
 			path = theoraplay;
 			sourceTree = "<group>";
 		};
+		F869ABAA2E055E4F00A1945F /* llm */ = {
+			isa = PBXGroup;
+			children = (
+				F869ABAC2E05605E00A1945F /* ollama.cpp */,
+				F869ABAB2E055E7500A1945F /* ollama.h */,
+			);
+			path = llm;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -2083,7 +2113,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 3BDB22EF25644FBF00C4A63D /* Build configuration list for PBXProject "Assets" */;
+			buildConfigurationList = 3BDB22EF25644FBF00C4A63D /* Build configuration list for PBXProject "mkxp-z" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -2258,6 +2288,7 @@
 				3B1C237925A19C600075EF5D /* alstream.cpp in Sources */,
 				3B1C237A25A19C600075EF5D /* table.cpp in Sources */,
 				3B1C237B25A19C600075EF5D /* net.cpp in Sources */,
+				F869ABAF2E05606300A1945F /* ollama.cpp in Sources */,
 				3B1C237C25A19C600075EF5D /* table-binding.cpp in Sources */,
 				3B1C237D25A19C600075EF5D /* config.cpp in Sources */,
 				3B1C237E25A19C600075EF5D /* bitmap-binding.cpp in Sources */,
@@ -2312,6 +2343,7 @@
 				3B1C23B425A19C600075EF5D /* autotilesvx.cpp in Sources */,
 				3B1C23B625A19C600075EF5D /* vertex.cpp in Sources */,
 				3B1C23B725A19C600075EF5D /* miniffi-binding.cpp in Sources */,
+				F8DA83E22E05E3BB00206681 /* llm-binding.cpp in Sources */,
 				3B1C23B825A19C600075EF5D /* soundemitter.cpp in Sources */,
 				3B1C23B925A19C600075EF5D /* etc-binding.cpp in Sources */,
 				3B1C23BA25A19C600075EF5D /* systemImplApple.mm in Sources */,
@@ -2320,6 +2352,7 @@
 				3B1C242B25A1AA1F0075EF5D /* steamshim_child.c in Sources */,
 				3B3F7D2D25B1A73A00EA5F1C /* SettingsMenuController.mm in Sources */,
 				3B1C23BF25A19C600075EF5D /* filesystemImplApple.mm in Sources */,
+				F85640742E06A116005C8AD7 /* json.cpp in Sources */,
 				3B1BC0E4266F7C2800794D22 /* iniconfig.cpp in Sources */,
 				3B1C23C125A19C600075EF5D /* sharedstate.cpp in Sources */,
 			);
@@ -2346,6 +2379,7 @@
 				3BBE878D2705A73400A574AE /* alstream.cpp in Sources */,
 				3BBE878E2705A73400A574AE /* table.cpp in Sources */,
 				3BBE878F2705A73400A574AE /* net.cpp in Sources */,
+				F869ABAE2E05606300A1945F /* ollama.cpp in Sources */,
 				3BBE87902705A73400A574AE /* table-binding.cpp in Sources */,
 				3BBE87912705A73400A574AE /* config.cpp in Sources */,
 				3BBE87922705A73400A574AE /* bitmap-binding.cpp in Sources */,
@@ -2400,6 +2434,7 @@
 				3BBE87C12705A73400A574AE /* autotilesvx.cpp in Sources */,
 				3BBE87C22705A73400A574AE /* vertex.cpp in Sources */,
 				3BBE87C32705A73400A574AE /* miniffi-binding.cpp in Sources */,
+				F8DA83E12E05E3BB00206681 /* llm-binding.cpp in Sources */,
 				3BBE87C42705A73400A574AE /* soundemitter.cpp in Sources */,
 				3BBE87C52705A73400A574AE /* etc-binding.cpp in Sources */,
 				3BBE87C62705A73400A574AE /* systemImplApple.mm in Sources */,
@@ -2408,6 +2443,7 @@
 				3BBE87C92705A73400A574AE /* steamshim_child.c in Sources */,
 				3BBE87CA2705A73400A574AE /* SettingsMenuController.mm in Sources */,
 				3BBE87CB2705A73400A574AE /* filesystemImplApple.mm in Sources */,
+				F85640732E06A116005C8AD7 /* json.cpp in Sources */,
 				3BBE87CC2705A73400A574AE /* iniconfig.cpp in Sources */,
 				3BBE87CD2705A73400A574AE /* sharedstate.cpp in Sources */,
 			);
@@ -2424,6 +2460,7 @@
 				3BC65D912584F3AD0063AFF1 /* input.cpp in Sources */,
 				3BC65D922584F3AD0063AFF1 /* tilemap-binding.cpp in Sources */,
 				3BC65D932584F3AD0063AFF1 /* audio.cpp in Sources */,
+				F869ABAD2E05606300A1945F /* ollama.cpp in Sources */,
 				3BC65D942584F3AD0063AFF1 /* main.cpp in Sources */,
 				3BC65D952584F3AD0063AFF1 /* alstream.cpp in Sources */,
 				3BC65D962584F3AD0063AFF1 /* table.cpp in Sources */,
@@ -2444,6 +2481,7 @@
 				3BC65DA52584F3AD0063AFF1 /* windowvx-binding.cpp in Sources */,
 				3BC65DA62584F3AD0063AFF1 /* windowvx.cpp in Sources */,
 				3B522DE5259C2039003301C4 /* LUrlParser.cpp in Sources */,
+				F8DA83E32E05E3BB00206681 /* llm-binding.cpp in Sources */,
 				3BC65DA72584F3AD0063AFF1 /* module_rpg.cpp in Sources */,
 				3B312843259E7DC1002EAB43 /* miniffi.cpp in Sources */,
 				3BC65DA82584F3AD0063AFF1 /* autotiles.cpp in Sources */,
@@ -2466,6 +2504,7 @@
 				3BC65DBC2584F3AD0063AFF1 /* tileatlasvx.cpp in Sources */,
 				3BC65DBD2584F3AD0063AFF1 /* bitmap.cpp in Sources */,
 				3BC65DBE2584F3AD0063AFF1 /* tilemapvx-binding.cpp in Sources */,
+				F85640752E06A116005C8AD7 /* json.cpp in Sources */,
 				3BC65DBF2584F3AD0063AFF1 /* window-binding.cpp in Sources */,
 				3BC65DC02584F3AD0063AFF1 /* midisource.cpp in Sources */,
 				3B3F7D2A25B1A73A00EA5F1C /* SettingsMenuController.mm in Sources */,
@@ -2504,6 +2543,7 @@
 				3B10EDA82568E95E00372D13 /* input.cpp in Sources */,
 				3B10EE022568E96A00372D13 /* tilemap-binding.cpp in Sources */,
 				3B10EDB72568E95E00372D13 /* audio.cpp in Sources */,
+				F869ABB02E05606300A1945F /* ollama.cpp in Sources */,
 				3B10EDAF2568E95E00372D13 /* main.cpp in Sources */,
 				3B10EDB42568E95E00372D13 /* alstream.cpp in Sources */,
 				3B10EDAA2568E95E00372D13 /* table.cpp in Sources */,
@@ -2524,6 +2564,7 @@
 				3B10EDFA2568E96A00372D13 /* windowvx-binding.cpp in Sources */,
 				3B10EDBC2568E95E00372D13 /* windowvx.cpp in Sources */,
 				3B522DE6259C2039003301C4 /* LUrlParser.cpp in Sources */,
+				F8DA83E02E05E3BB00206681 /* llm-binding.cpp in Sources */,
 				3B10EE0B2568E96A00372D13 /* module_rpg.cpp in Sources */,
 				3B312844259E7DC1002EAB43 /* miniffi.cpp in Sources */,
 				3B10EDD22568E95E00372D13 /* autotiles.cpp in Sources */,
@@ -2546,6 +2587,7 @@
 				3B10EDC82568E95E00372D13 /* tileatlasvx.cpp in Sources */,
 				3B10EDBD2568E95E00372D13 /* bitmap.cpp in Sources */,
 				3B10EDFC2568E96A00372D13 /* tilemapvx-binding.cpp in Sources */,
+				F85640762E06A116005C8AD7 /* json.cpp in Sources */,
 				3B10EDF52568E96A00372D13 /* window-binding.cpp in Sources */,
 				3B10EDB32568E95E00372D13 /* midisource.cpp in Sources */,
 				3B3F7D2B25B1A73A00EA5F1C /* SettingsMenuController.mm in Sources */,
@@ -3710,7 +3752,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		3BDB22EF25644FBF00C4A63D /* Build configuration list for PBXProject "Assets" */ = {
+		3BDB22EF25644FBF00C4A63D /* Build configuration list for PBXProject "mkxp-z" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3BDB22F025644FBF00C4A63D /* Debug */,

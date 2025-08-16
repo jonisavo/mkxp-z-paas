@@ -92,6 +92,7 @@ global_include_dirs += include_directories('.',
     'filesystem', 'filesystem/ghc',
     'input',
     'net',
+    'llm',
     'system',
     'util', 'util/sigslot', 'util/sigslot/adapter'
 )
@@ -175,6 +176,8 @@ main_source = files(
 
     'net/LUrlParser.cpp',
     'net/net.cpp',
+
+    'llm/ollama.cpp',
 
     'system/systemImpl.cpp'
 )
