@@ -5,11 +5,6 @@
 //  Created by ゾロアーク on 12/29/20.
 //
 
-#include <stdio.h>
-
-#if defined(MKXPZ_SSL)
-#define CPPHTTPLIB_OPENSSL_SUPPORT
-#endif
 #include "httplib.h"
 
 #include "util/exception.h"

@@ -44,6 +44,7 @@ if get_option('enable-https') == true
     if openssl.found() == true
         global_dependencies += openssl
         global_args += '-DMKXPZ_SSL'
+        global_args += '-DCPPHTTPLIB_OPENSSL_SUPPORT'
         if host_system == 'windows'
             global_link_args += '-lcrypt32'
         endif
