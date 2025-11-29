@@ -22,15 +22,18 @@ static mkxp_llm::Ollama::Request hash2Request(const VALUE hash) {
     Check_Type(hash, T_HASH);
 
     VALUE model = rb_hash_aref(hash, rb_str_new_cstr("model"));
+    if (NIL_P(model)) {
+        rb_raise(rb_eArgError, "missing required key 'model'");
+    }
     SafeStringValue(model);
     
     ret.model = rb_string_value_cstr(&model);
     
-    VALUE messages = rb_hash_aref(hash, rb_str_new_cstr("messages"));
+    const VALUE messages = rb_hash_aref(hash, rb_str_new_cstr("messages"));
     Check_Type(messages, T_ARRAY);
     
     for (int i = 0; i < RARRAY_LEN(messages); i++) {
-        VALUE message = rb_ary_entry(messages, i);
+        const VALUE message = rb_ary_entry(messages, i);
         Check_Type(message, T_HASH);
         VALUE role = rb_hash_aref(message, rb_str_new_cstr("role"));
         SafeStringValue(role);
@@ -69,7 +72,7 @@ struct OllamaWaitData {
 };
 
 static void* ollama_wait_without_gvl(void* data) {
-    auto wait_data = static_cast<OllamaWaitData*>(data);
+    const auto wait_data = static_cast<OllamaWaitData*>(data);
     
     // Wait for completion without holding the GVL
     std::unique_lock<std::mutex> lock(*wait_data->mutex);
@@ -78,7 +81,7 @@ static void* ollama_wait_without_gvl(void* data) {
     return nullptr;
 }
 
-static void safe_callback_call(ThreadArgs* args, VALUE response, VALUE error_flag) {
+static void safe_callback_call(ThreadArgs* args, const VALUE response, const VALUE error_flag) {
     std::lock_guard<std::mutex> lock(args->callback_mutex);
 
     if (args->callback_called.exchange(true)) {
@@ -97,10 +100,9 @@ static void safe_callback_call(ThreadArgs* args, VALUE response, VALUE error_fla
 }
 
 static VALUE ruby_thread_func(void* args_ptr) {
-    auto args = static_cast<ThreadArgs*>(args_ptr);
+    const auto args = static_cast<ThreadArgs*>(args_ptr);
 
 	std::string response_body;
-    bool is_error = false;
     
     try {
         const auto client = getOllamaClient();
@@ -108,6 +110,7 @@ static VALUE ruby_thread_func(void* args_ptr) {
         std::mutex mutex;
         std::condition_variable cv;
         bool completed = false;
+        bool is_error = false;
         
         Debug() << "Starting Ollama chat...";
         
@@ -134,12 +137,12 @@ static VALUE ruby_thread_func(void* args_ptr) {
 
             safe_callback_call(args, rb_response, rb_error);
         } catch (...) {
-            VALUE error_hash = rb_hash_new();
+            const VALUE error_hash = rb_hash_new();
             rb_hash_aset(error_hash, rb_str_new_cstr("error"), rb_str_new_cstr("JSON parsing error"));
             safe_callback_call(args, error_hash, Qtrue);
         }
     } catch (...) {
-        VALUE error_hash = rb_hash_new();
+        const VALUE error_hash = rb_hash_new();
         rb_hash_aset(error_hash, rb_str_new_cstr("error"), rb_str_new_cstr("Internal error occurred"));
         safe_callback_call(args, error_hash, Qtrue);
     }
@@ -155,24 +158,18 @@ RB_METHOD_GUARD(ollamaChat) {
     VALUE request;
     rb_scan_args(argc, argv, "1", &request);
     
-    VALUE callback = rb_block_given_p() ? rb_block_proc() : Qnil;
+    const VALUE callback = rb_block_given_p() ? rb_block_proc() : Qnil;
     
     if (request == Qnil) {
         rb_raise(rb_eArgError, "arg must be a Hash");
-        return Qnil;
     }
 
 	if (callback == Qnil) {
 		rb_raise(rb_eArgError, "no block given");
-		return Qnil;
 	}
     
     const mkxp_llm::Ollama::Request req = hash2Request(request);
-    
-    // Store Ruby callback globally to prevent GC
-    rb_gc_register_address(&callback);
-    
-    auto args = new ThreadArgs(req, callback);
+    const auto args = new ThreadArgs(req, callback);
     
     // Create a new Ruby thread to handle the async operation
     rb_thread_create(ruby_thread_func, args);
@@ -184,6 +181,6 @@ RB_METHOD_GUARD(ollamaChat) {
 RB_METHOD_GUARD_END
 
 void llmBindingInit() {
-    VALUE mOllama = rb_define_module("Ollama");
+    const VALUE mOllama = rb_define_module("Ollama");
     _rb_define_module_function(mOllama, "chat", ollamaChat);
 }
