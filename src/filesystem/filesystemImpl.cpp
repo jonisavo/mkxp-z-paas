@@ -21,6 +21,15 @@ namespace fs = ghc::filesystem;
 
 #include <fstream>
 
+#if defined(__WIN32__)
+#include <windows.h>
+#include <shobjidl.h>
+#include <SDL_syswm.h>
+#elif defined(__linux__)
+#include <gtk/gtk.h>
+#include <SDL_syswm.h>
+#endif
+
 // https://stackoverflow.com/questions/12774207/fastest-way-to-check-if-a-file-exist-using-standard-c-c11-c
 bool filesystemImpl::fileExists(const char *path) {
     fs::path stdPath(path);
@@ -103,3 +112,118 @@ std::string filesystemImpl::getDefaultGameRoot() {
     SDL_free(p);
     return ret;
 }
+
+#if defined(__WIN32__) || defined(__linux__)
+std::string filesystemImpl::selectPath(SDL_Window *win, const char *msg, const char *prompt) {
+#if defined(__WIN32__)
+    // Use IFileDialog for modern Windows folder selection
+    std::string result;
+
+    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+    if (FAILED(hr)) {
+        return result;
+    }
+
+    IFileOpenDialog *pFileDialog = nullptr;
+    hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL,
+                          IID_IFileOpenDialog, reinterpret_cast<void**>(&pFileDialog));
+
+    if (SUCCEEDED(hr)) {
+        // Set options for folder picking
+        DWORD dwOptions;
+        hr = pFileDialog->GetOptions(&dwOptions);
+        if (SUCCEEDED(hr)) {
+            hr = pFileDialog->SetOptions(dwOptions | FOS_PICKFOLDERS | FOS_FORCEFILESYSTEM);
+        }
+
+        // Set the title/prompt
+        if (msg) {
+            std::wstring wmsg(msg, msg + strlen(msg));
+            pFileDialog->SetTitle(wmsg.c_str());
+        }
+
+        if (prompt) {
+            std::wstring wprompt(prompt, prompt + strlen(prompt));
+            pFileDialog->SetOkButtonLabel(wprompt.c_str());
+        }
+
+        // Get the native window handle
+        HWND hwnd = nullptr;
+        SDL_SysWMinfo windowinfo{};
+        SDL_VERSION(&windowinfo.version);
+        if (SDL_GetWindowWMInfo(win, &windowinfo)) {
+            hwnd = windowinfo.info.win.window;
+        }
+
+        // Show the dialog
+        hr = pFileDialog->Show(hwnd);
+
+        if (SUCCEEDED(hr)) {
+            IShellItem *pItem = nullptr;
+            hr = pFileDialog->GetResult(&pItem);
+            if (SUCCEEDED(hr)) {
+                PWSTR pszFilePath = nullptr;
+                hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+                if (SUCCEEDED(hr)) {
+                    // Convert wide string to UTF-8
+                    int size_needed = WideCharToMultiByte(CP_UTF8, 0, pszFilePath, -1, NULL, 0, NULL, NULL);
+                    if (size_needed > 0) {
+                        std::string utf8str(size_needed - 1, 0);
+                        WideCharToMultiByte(CP_UTF8, 0, pszFilePath, -1, &utf8str[0], size_needed, NULL, NULL);
+                        result = utf8str;
+                    }
+                    CoTaskMemFree(pszFilePath);
+                }
+                pItem->Release();
+            }
+        }
+        pFileDialog->Release();
+    }
+
+    CoUninitialize();
+    return result;
+
+#elif defined(__linux__)
+    // Use GTK file chooser for Linux
+    std::string result;
+
+    // Initialize GTK if not already done
+    if (!gtk_init_check(nullptr, nullptr)) {
+        return result;
+    }
+
+    GtkWidget *dialog = gtk_file_chooser_dialog_new(
+        msg ? msg : "Select Folder",
+        nullptr,
+        GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
+        "_Cancel", GTK_RESPONSE_CANCEL,
+        prompt ? prompt : "_Select", GTK_RESPONSE_ACCEPT,
+        nullptr
+    );
+
+    // Make the dialog modal relative to the SDL window if possible
+    gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
+    gtk_window_set_keep_above(GTK_WINDOW(dialog), TRUE);
+
+    gint response = gtk_dialog_run(GTK_DIALOG(dialog));
+
+    if (response == GTK_RESPONSE_ACCEPT) {
+        GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
+        char *filename = gtk_file_chooser_get_filename(chooser);
+        if (filename) {
+            result = std::string(filename);
+            g_free(filename);
+        }
+    }
+
+    gtk_widget_destroy(dialog);
+
+    // Process pending GTK events to ensure dialog is fully closed
+    while (gtk_events_pending()) {
+        gtk_main_iteration();
+    }
+
+    return result;
+#endif
+}
+#endif

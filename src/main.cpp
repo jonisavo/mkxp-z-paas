@@ -370,12 +370,14 @@ int main(int argc, char *argv[]) {
         }
     }
 #endif
-    
-#if defined(MKXPZ_BUILD_XCODE)
-#define DEBUG_FSELECT_MSG "Select the folder from which to load game files. This is the folder containing the game's INI."
-#define DEBUG_FSELECT_PROMPT "Load Game"
+
     if (conf.manualFolderSelect) {
-        std::string dataDirStr = mkxp_fs::selectPath(win, DEBUG_FSELECT_MSG, DEBUG_FSELECT_PROMPT);
+        const std::string dataDirStr = mkxp_fs::selectPath(
+          win,
+          "Select the folder from which to load game files. This is the folder containing the game's INI.",
+          "Load Game"
+        );
+
         if (!dataDirStr.empty()) {
             conf.gameFolder = dataDirStr;
             mkxp_fs::setCurrentDirectory(dataDirStr.c_str());
@@ -384,7 +386,6 @@ int main(int argc, char *argv[]) {
             conf.readGameINI();
         }
     }
-#endif
 
     /* OSX and Windows have their own native ways of
      * dealing with icons; don't interfere with them */

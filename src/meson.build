@@ -101,6 +101,11 @@ global_include_dirs += include_directories('.',
 global_dependencies += [openal, zlib, bz2, sdl2, sdl_sound, pixman, physfs, theora, vorbisfile, vorbis, ogg, sdl2_ttf, freetype, sdl2_image, png, iconv, uchardet]
 if host_system == 'windows'
     global_dependencies += compilers['cpp'].find_library('wsock32')
+    global_dependencies += compilers['cpp'].find_library('ole32')
+    global_dependencies += compilers['cpp'].find_library('shell32')
+else
+    gtk3 = dependency('gtk+-3.0')
+    global_dependencies += gtk3
 endif
 
 if get_option('shared_fluid') == true
