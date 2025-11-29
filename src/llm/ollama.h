@@ -6,6 +6,7 @@
 //
 
 #ifndef ollama_h
+#define ollama_h
 
 #include <vector>
 #include <string>
