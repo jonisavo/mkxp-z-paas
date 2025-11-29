@@ -16,9 +16,15 @@ json5pp::value Ollama::Message::to_object() const {
     });
 }
 
-void Ollama::chat(const Request &request, Callback callback) {
-    this->thread_pool_.enqueue([this, request, callback]() {
-        auto client = httplib::Client(this->base_url_);
+void Ollama::chat(const Request &request, const Callback& callback) {
+    this->thread_pool_.enqueue([request, callback] {
+        auto client = httplib::Client("127.0.0.1", 11434);
+
+        if (!client.is_valid()) {
+            Debug() << "HTTP client is not valid";
+            callback("Failed to create HTTP client", true);
+            return;
+        }
         
         client.set_read_timeout(300);
         client.set_connection_timeout(60);

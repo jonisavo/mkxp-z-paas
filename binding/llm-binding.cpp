@@ -12,7 +12,12 @@
 
 #include "llm/ollama.h"
 
-static mkxp_llm::Ollama::Request hash2Request(VALUE hash) {
+static mkxp_llm::Ollama* getOllamaClient() {
+    static mkxp_llm::Ollama client;
+    return &client;
+}
+
+static mkxp_llm::Ollama::Request hash2Request(const VALUE hash) {
     mkxp_llm::Ollama::Request ret;
     Check_Type(hash, T_HASH);
 
@@ -98,7 +103,7 @@ static VALUE ruby_thread_func(void* args_ptr) {
     bool is_error = false;
     
     try {
-        mkxp_llm::Ollama client("http://localhost:11434");
+        const auto client = getOllamaClient();
 
         std::mutex mutex;
         std::condition_variable cv;
@@ -106,7 +111,7 @@ static VALUE ruby_thread_func(void* args_ptr) {
         
         Debug() << "Starting Ollama chat...";
         
-        client.chat(args->request, [&](const std::string& body, bool error) {
+        client->chat(args->request, [&](const std::string& body, const bool error) {
             std::lock_guard<std::mutex> lock(mutex);
             response_body = body;
             is_error = error;

@@ -16,12 +16,9 @@
 
 namespace mkxp_llm {
 class Ollama {
-private:
-    std::string base_url_;
     httplib::ThreadPool thread_pool_;
 public:
-    Ollama(const std::string& base_url)
-    : base_url_(base_url), thread_pool_(1) {}
+    Ollama() : thread_pool_(1) {}
     
     ~Ollama() {
         this->thread_pool_.shutdown();
@@ -48,7 +45,7 @@ public:
     
     using Callback = std::function<void(const std::string& content, bool error)>;
     
-    void chat(const Request& request, Callback callback);
+    void chat(const Request& request, const Callback& callback);
 };
 }
 
