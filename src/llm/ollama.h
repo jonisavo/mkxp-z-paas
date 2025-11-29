@@ -12,7 +12,9 @@
 #include <string>
 #include <functional>
 #include "net/httplib.h"
-#include "util/json5pp.hpp"
+#include "util/json.hpp"
+
+using json = nlohmann::json;
 
 namespace mkxp_llm {
 class Ollama {
@@ -33,7 +35,7 @@ public:
             this->content = content;
         }
         
-        json5pp::value to_object() const;
+        json to_object() const;
     };
     
     struct Request {

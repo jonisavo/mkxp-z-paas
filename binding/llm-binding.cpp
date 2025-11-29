@@ -131,9 +131,9 @@ static VALUE ruby_thread_func(void* args_ptr) {
         
         try {
             // FIXME: errors do not yield JSON strings
-            const auto json = json5pp::parse(response_body.c_str(), response_body.length());
-            VALUE rb_response = json2rb(json);
-            VALUE rb_error = is_error ? Qtrue : Qfalse;
+            const auto json = json::parse(response_body);
+            const VALUE rb_response = json2rb(json);
+            const VALUE rb_error = is_error ? Qtrue : Qfalse;
 
             safe_callback_call(args, rb_response, rb_error);
         } catch (...) {

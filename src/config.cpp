@@ -18,15 +18,8 @@
 #include "util/sdl-util.h"
 #include "util/util.h"
 
-#include "util/json5pp.hpp"
-
 #include "util/iniconfig.h"
 #include "util/encoding.h"
-
-#include "system/system.h"
-
-
-namespace json = json5pp;
 
 std::string prefPath(const char *org, const char *app) {
     char *path = SDL_GetPrefPath(org, app);
@@ -37,23 +30,23 @@ std::string prefPath(const char *org, const char *app) {
     return ret;
 }
 
-void fillStringVec(json::value &item, std::vector<std::string> &vector) {
+void fillStringVec(json &item, std::vector<std::string> &vector) {
     if (!item.is_array()) {
         if (item.is_string()) {
-            vector.push_back(item.as_string());
+            vector.emplace_back(item.get<std::string>());
         }
         return;
     }
-    auto &array = item.as_array();
-    for (size_t i = 0; i < array.size(); i++) {
-        if (!array[i].is_string())
+
+    for (const auto &element : item) {
+        if (!element.is_string())
             continue;
-        
-        vector.push_back(array[i].as_string());
+
+        vector.emplace_back(element.get<std::string>());
     }
 }
 
-bool copyObject(json::value &dest, json::value &src, const char *objectName = "") {
+bool copyObject(json &dest, json &src, const char *objectName = "") {
     assert(dest.is_object());
     if (src.is_null())
         return false;
@@ -61,24 +54,24 @@ bool copyObject(json::value &dest, json::value &src, const char *objectName = ""
     if (!src.is_object())
         return false;
     
-    auto &srcVec = src.as_object();
-    auto &destVec = dest.as_object();
-    
-    for (auto it : srcVec) {
+    for (auto& el : src.items()) {
+        const auto& key = el.key();
+        auto& value = el.value();
+
         // Specifically processs this object later.
-        if (it.second.is_object() && destVec[it.first].is_object())
+        if (value.is_object() && dest[key].is_object())
             continue;
         
-        if ((it.second.is_array() && destVec[it.first].is_array())    ||
-            (it.second.is_number() && destVec[it.first].is_number())  ||
-            (it.second.is_string() && destVec[it.first].is_string())  ||
-            (it.second.is_boolean() && destVec[it.first].is_boolean()) ||
-            (destVec[it.first].is_null()))
+        if ((value.is_array() && dest[key].is_array())    ||
+            (value.is_number() && dest[key].is_number())  ||
+            (value.is_string() && dest[key].is_string())  ||
+            (value.is_boolean() && dest[key].is_boolean()) ||
+            (dest[key].is_null()))
         {
-            destVec[it.first] = it.second;
+            dest[key] = value;
         }
         else {
-            Debug() << "Invalid variable in configuration:" << objectName << it.first;
+            Debug() << "Invalid variable in configuration:" << objectName << key;
         }
     }
     return true;
@@ -97,16 +90,16 @@ bool getEnvironmentBool(const char *env, bool defaultValue) {
     return defaultValue;
 }
 
-json::value readConfFile(const char *path) {
-    
-    json::value ret(0);
+json readConfFile(const char *path) {
+    json ret(0);
+
     if (!mkxp_fs::fileExists(path)) {
-        return json::object({});
+        return json::object();
     }
     
     try {
         std::string cfg = mkxp_fs::contentsOfFileAsString(path);
-        ret = json::parse5(Encoding::convertString(cfg));
+        ret = json::parse(Encoding::convertString(cfg), nullptr, true, true, true);
     }
     catch (const std::exception &e) {
         Debug() << "Failed to parse" << path << ":" << e.what();
@@ -125,7 +118,7 @@ json::value readConfFile(const char *path) {
 
 Config::Config() {}
 
-void Config::read(int argc, char *argv[]) {
+void Config::read(const int argc, char *argv[]) {
     auto optsJ = json::object({
         {"rgssVersion", 0},
         {"debugMode", false},
@@ -214,9 +207,7 @@ void Config::read(int argc, char *argv[]) {
             {"r", "R"}
         })}
     });
-    
-    auto &opts = optsJ.as_object();
-    
+
 #define GUARD(exp) \
 try { exp } catch (...) {}
     
@@ -235,29 +226,29 @@ try { exp } catch (...) {}
         }
     }
     
-    json::value baseConf = readConfFile(CONF_FILE);
+    json baseConf = readConfFile(CONF_FILE);
     copyObject(optsJ, baseConf);
-    copyObject(opts["bindingNames"], baseConf.as_object()["bindingNames"], "bindingNames .");
+    copyObject(optsJ["bindingNames"], baseConf["bindingNames"], "bindingNames .");
     
-#define SET_OPT_CUSTOMKEY(var, key, type) GUARD(var = opts[#key].as_##type();)
+#define SET_OPT_CUSTOMKEY(var, key, type) GUARD(var = optsJ[#key].get<type>();)
 #define SET_OPT(var, type) SET_OPT_CUSTOMKEY(var, var, type)
-#define SET_STRINGOPT(var, key) GUARD(var = std::string(opts[#key].as_string());)
+#define SET_STRINGOPT(var, key) GUARD(var = optsJ[#key].get<std::string>();)
     
     SET_STRINGOPT(gameFolder, gameFolder);
     SET_STRINGOPT(dataPathOrg, dataPathOrg);
     SET_STRINGOPT(dataPathApp, dataPathApp);
     SET_STRINGOPT(iconPath, iconPath);
     SET_STRINGOPT(execName, execName);
-    SET_OPT(allowSymlinks, boolean);
-    SET_OPT(pathCache, boolean);
-    SET_OPT_CUSTOMKEY(jit.enabled, JITEnable, boolean);
-    SET_OPT_CUSTOMKEY(jit.verboseLevel, JITVerboseLevel, integer);
-    SET_OPT_CUSTOMKEY(jit.maxCache, JITMaxCache, integer);
-    SET_OPT_CUSTOMKEY(jit.minCalls, JITMinCalls, integer);
-    SET_OPT_CUSTOMKEY(yjit.enabled, YJITEnable, boolean);
-    SET_OPT(rgssVersion, integer);
-    SET_OPT(defScreenW, integer);
-    SET_OPT(defScreenH, integer);
+    SET_OPT(allowSymlinks, bool);
+    SET_OPT(pathCache, bool);
+    SET_OPT_CUSTOMKEY(jit.enabled, JITEnable, bool);
+    SET_OPT_CUSTOMKEY(jit.verboseLevel, JITVerboseLevel, int);
+    SET_OPT_CUSTOMKEY(jit.maxCache, JITMaxCache, int);
+    SET_OPT_CUSTOMKEY(jit.minCalls, JITMinCalls, int);
+    SET_OPT_CUSTOMKEY(yjit.enabled, YJITEnable, bool);
+    SET_OPT(rgssVersion, int);
+    SET_OPT(defScreenW, int);
+    SET_OPT(defScreenH, int);
     
     // Take a break real quick and witch to set game folder and read the game's ini
     if (!gameFolder.empty() && !mkxp_fs::setCurrentDirectory(gameFolder.c_str())) {
@@ -268,64 +259,64 @@ try { exp } catch (...) {}
     
     // Now check for an extra mkxp.conf in the user's save directory and merge anything else from that
     userConfPath = mkxp_fs::normalizePath(std::string(customDataPath + "/" CONF_FILE).c_str(), 0, 1);
-    json::value userConf = readConfFile(userConfPath.c_str());
+    json userConf = readConfFile(userConfPath.c_str());
     copyObject(optsJ, userConf);
     
     // now RESUME
     
-    SET_OPT(debugMode, boolean);
-    SET_OPT(displayFPS, boolean);
-    SET_OPT(printFPS, boolean);
-    SET_OPT(fullscreen, boolean);
-    SET_OPT(fixedAspectRatio, boolean);
-    SET_OPT(smoothScaling, integer);
-    SET_OPT(smoothScalingDown, integer);
-    SET_OPT(bitmapSmoothScaling, integer);
-    SET_OPT(bitmapSmoothScalingDown, integer);
-    SET_OPT(smoothScalingMipmaps, boolean);
-    SET_OPT(bicubicSharpness, integer);
+    SET_OPT(debugMode, bool);
+    SET_OPT(displayFPS, bool);
+    SET_OPT(printFPS, bool);
+    SET_OPT(fullscreen, bool);
+    SET_OPT(fixedAspectRatio, bool);
+    SET_OPT(smoothScaling, int);
+    SET_OPT(smoothScalingDown, int);
+    SET_OPT(bitmapSmoothScaling, int);
+    SET_OPT(bitmapSmoothScalingDown, int);
+    SET_OPT(smoothScalingMipmaps, bool);
+    SET_OPT(bicubicSharpness, int);
 #ifdef MKXPZ_SSL
-    SET_OPT(xbrzScalingFactor, integer);
+    SET_OPT(xbrzScalingFactor, int);
 #endif
-    SET_OPT(enableHires, boolean);
-    SET_OPT(textureScalingFactor, number);
-    SET_OPT(framebufferScalingFactor, number);
-    SET_OPT(atlasScalingFactor, number);
-    SET_OPT(winResizable, boolean);
-    SET_OPT(vsync, boolean);
+    SET_OPT(enableHires, bool);
+    SET_OPT(textureScalingFactor, double);
+    SET_OPT(framebufferScalingFactor, double);
+    SET_OPT(atlasScalingFactor, double);
+    SET_OPT(winResizable, bool);
+    SET_OPT(vsync, bool);
     SET_STRINGOPT(windowTitle, windowTitle);
-    SET_OPT(fixedFramerate, integer);
-    SET_OPT(frameSkip, boolean);
-    SET_OPT(syncToRefreshrate, boolean);
-    fillStringVec(opts["solidFonts"], solidFonts);
+    SET_OPT(fixedFramerate, int);
+    SET_OPT(frameSkip, bool);
+    SET_OPT(syncToRefreshrate, bool);
+    fillStringVec(optsJ["solidFonts"], solidFonts);
     for (std::string & solidFont : solidFonts)
         std::transform(solidFont.begin(), solidFont.end(), solidFont.begin(),
             [](unsigned char c) { return std::tolower(c); });
 #ifdef __APPLE__
-    SET_OPT(preferMetalRenderer, boolean);
+    SET_OPT(preferMetalRenderer, bool);
 #endif
-    SET_OPT(subImageFix, boolean);
-    SET_OPT(enableBlitting, boolean);
-    SET_OPT_CUSTOMKEY(integerScaling.active, integerScalingActive, boolean);
-    SET_OPT_CUSTOMKEY(integerScaling.lastMileScaling, integerScalingLastMile, boolean);
-    SET_OPT(maxTextureSize, integer);
-    SET_OPT(anyAltToggleFS, boolean);
-    SET_OPT(enableReset, boolean);
-    SET_OPT(enableSettings, boolean);
+    SET_OPT(subImageFix, bool);
+    SET_OPT(enableBlitting, bool);
+    SET_OPT_CUSTOMKEY(integerScaling.active, integerScalingActive, bool);
+    SET_OPT_CUSTOMKEY(integerScaling.lastMileScaling, integerScalingLastMile, bool);
+    SET_OPT(maxTextureSize, int);
+    SET_OPT(anyAltToggleFS, bool);
+    SET_OPT(enableReset, bool);
+    SET_OPT(enableSettings, bool);
     SET_STRINGOPT(midi.soundFont, midiSoundFont);
-    SET_OPT_CUSTOMKEY(midi.chorus, midiChorus, boolean);
-    SET_OPT_CUSTOMKEY(midi.reverb, midiReverb, boolean);
-    SET_OPT_CUSTOMKEY(SE.sourceCount, SESourceCount, integer);
-    SET_OPT_CUSTOMKEY(BGM.trackCount, BGMTrackCount, integer);
+    SET_OPT_CUSTOMKEY(midi.chorus, midiChorus, bool);
+    SET_OPT_CUSTOMKEY(midi.reverb, midiReverb, bool);
+    SET_OPT_CUSTOMKEY(SE.sourceCount, SESourceCount, int);
+    SET_OPT_CUSTOMKEY(BGM.trackCount, BGMTrackCount, int);
     SET_STRINGOPT(customScript, customScript);
-    SET_OPT(useScriptNames, boolean);
-    SET_OPT(dumpAtlas, boolean);
+    SET_OPT(useScriptNames, bool);
+    SET_OPT(dumpAtlas, bool);
     
-    fillStringVec(opts["preloadScript"], preloadScripts);
-    fillStringVec(opts["postloadScript"], postloadScripts);
-    fillStringVec(opts["RTP"], rtps);
-    fillStringVec(opts["patches"], patches);
-    fillStringVec(opts["fontSub"], fontSubs);
+    fillStringVec(optsJ["preloadScript"], preloadScripts);
+    fillStringVec(optsJ["postloadScript"], postloadScripts);
+    fillStringVec(optsJ["RTP"], rtps);
+    fillStringVec(optsJ["patches"], patches);
+    fillStringVec(optsJ["fontSub"], fontSubs);
     for (std::string & fontSub : fontSubs)
         std::transform(fontSub.begin(), fontSub.end(), fontSub.begin(),
             [](unsigned char c) { return std::tolower(c); });
@@ -334,11 +325,11 @@ try { exp } catch (...) {}
     SET_OPT(fontHinting, integer);
     SET_OPT(fontHeightReporting, integer);
     SET_OPT(fontOutlineCrop, boolean);
-    fillStringVec(opts["rubyLoadpath"], rubyLoadpaths);
+    fillStringVec(optsJ["rubyLoadpath"], rubyLoadpaths);
     
-    auto &bnames = opts["bindingNames"].as_object();
+    auto &bnames = optsJ["bindingNames"];
     
-#define BINDING_NAME(btn) kbActionNames.btn = bnames[#btn].as_string()
+#define BINDING_NAME(btn) kbActionNames.btn = bnames[#btn].get<std::string>()
     BINDING_NAME(a);
     BINDING_NAME(b);
     BINDING_NAME(c);
@@ -379,7 +370,7 @@ static void setupScreenSize(Config &conf) {
 }
 
 bool Config::fontIsSolid(const char *fontName) const {
-    for (std::string solidfont : solidFonts)
+    for (const std::string& solidfont : solidFonts)
         if (!strcmp(solidfont.c_str(), fontName)) return true;
     
     return false;

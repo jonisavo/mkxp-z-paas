@@ -34,7 +34,8 @@ binding_source = [files(
     'windowvx-binding.cpp',
     'tilemapvx-binding.cpp',
     'http-binding.cpp',
-    'llm-binding.cpp'
+    'llm-binding.cpp',
+    'json.cpp'
 )]
 
 if steamworks == true

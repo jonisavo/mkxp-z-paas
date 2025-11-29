@@ -19,7 +19,6 @@
  ** along with mkxp.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "audio/audio.h"
 #include "filesystem/filesystem.h"
 #include "display/graphics.h"
 #include "display/font.h"
@@ -60,8 +59,6 @@ extern "C" {
 #include <zlib.h>
 
 #include <SDL_cpuinfo.h>
-#include <SDL_filesystem.h>
-#include <SDL_loadso.h>
 #include <SDL_power.h>
 
 extern const char module_rpg1[];
@@ -153,8 +150,8 @@ RB_METHOD(_kernelCaller);
 RB_METHOD(mkxpStringToUTF8);
 RB_METHOD(mkxpStringToUTF8Bang);
 
-VALUE json2rb(json5pp::value const &v);
-json5pp::value rb2json(VALUE v);
+VALUE json2rb(json const &v);
+json rb2json(VALUE v);
 
 RB_METHOD(mkxpParseCSV);
 
@@ -724,27 +721,27 @@ RB_METHOD_GUARD(mkxpParseCSV) {
 }
 RB_METHOD_GUARD_END
 
-json5pp::value loadUserSettings() {
-    json5pp::value ret;
-    VALUE cpath = rb_utf8_str_new_cstr(shState->config().userConfPath.c_str());
+json loadUserSettings() {
+    json ret;
+    const VALUE cpath = rb_utf8_str_new_cstr(shState->config().userConfPath.c_str());
     
     if (rb_funcall(rb_cFile, rb_intern("exists?"), 1, cpath) == Qtrue) {
-        VALUE f = rb_funcall(rb_cFile, rb_intern("open"), 2, cpath, rb_str_new("r", 1));
-        VALUE data = rb_funcall(f, rb_intern("read"), 0);
+        const VALUE f = rb_funcall(rb_cFile, rb_intern("open"), 2, cpath, rb_str_new("r", 1));
+        const VALUE data = rb_funcall(f, rb_intern("read"), 0);
         rb_funcall(f, rb_intern("close"), 0);
-        ret = json5pp::parse5(RSTRING_PTR(data));
+        ret = json::parse(RSTRING_PTR(data));
     }
     
     if (!ret.is_object())
-        ret = json5pp::object({});
+        ret = json::object();
     
     return ret;
 }
 
-void saveUserSettings(json5pp::value &settings) {
-    VALUE cpath = rb_utf8_str_new_cstr(shState->config().userConfPath.c_str());
-    VALUE f = rb_funcall(rb_cFile, rb_intern("open"), 2, cpath, rb_str_new("w", 1));
-    rb_funcall(f, rb_intern("write"), 1, rb_utf8_str_new_cstr(settings.stringify5(json5pp::rule::space_indent<>()).c_str()));
+void saveUserSettings(json &settings) {
+    const VALUE cpath = rb_utf8_str_new_cstr(shState->config().userConfPath.c_str());
+    const VALUE f = rb_funcall(rb_cFile, rb_intern("open"), 2, cpath, rb_str_new("w", 1));
+    rb_funcall(f, rb_intern("write"), 1, rb_utf8_str_new_cstr(settings.dump(4).c_str()));
     rb_funcall(f, rb_intern("close"), 0);
 }
 
@@ -756,14 +753,12 @@ RB_METHOD(mkxpGetJSONSetting) {
     SafeStringValue(sname);
     
     auto settings = loadUserSettings();
-    auto &s = settings.as_object();
     
-    if (s[RSTRING_PTR(sname)].is_null()) {
-        return json2rb(shState->config().raw.as_object()[RSTRING_PTR(sname)]);
+    if (settings[RSTRING_PTR(sname)].is_null()) {
+        return json2rb(shState->config().raw[RSTRING_PTR(sname)]);
     }
     
-    return json2rb(s[RSTRING_PTR(sname)]);
-    
+    return json2rb(settings[RSTRING_PTR(sname)]);
 }
 
 RB_METHOD_GUARD(mkxpSetJSONSetting) {
@@ -774,8 +769,7 @@ RB_METHOD_GUARD(mkxpSetJSONSetting) {
     SafeStringValue(sname);
     
     auto settings = loadUserSettings();
-    auto &s = settings.as_object();
-    s[RSTRING_PTR(sname)] = rb2json(svalue);
+    settings[RSTRING_PTR(sname)] = rb2json(svalue);
     saveUserSettings(settings);
     
     return Qnil;

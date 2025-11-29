@@ -7,36 +7,34 @@
 
 #include "json.h"
 
-VALUE json2rb(json5pp::value const &v) {
+VALUE json2rb(json const &v) {
     if (v.is_null())
         return Qnil;
     
-    if (v.is_number())
-        return rb_float_new(v.as_number());
+    if (v.is_number_float())
+        return rb_float_new(v.get<double>());
     
     if (v.is_string())
-        return rb_utf8_str_new_cstr(v.as_string().c_str());
+        return rb_utf8_str_new_cstr(v.get<std::string>().c_str());
     
     if (v.is_boolean())
-        return rb_bool_new(v.as_boolean());
+        return rb_bool_new(v.get<bool>());
     
-    if (v.is_integer())
-        return LL2NUM(v.as_integer());
+    if (v.is_number())
+        return LL2NUM(v.get<int64_t>());
     
     if (v.is_array()) {
-        auto &a = v.as_array();
-        VALUE ret = rb_ary_new();
-        for (auto item : a) {
+        const VALUE ret = rb_ary_new();
+        for (auto& item : v) {
             rb_ary_push(ret, json2rb(item));
         }
         return ret;
     }
     
     if (v.is_object()) {
-        auto &o = v.as_object();
-        VALUE ret = rb_hash_new();
-        for (auto const &pair : o) {
-            rb_hash_aset(ret, rb_utf8_str_new_cstr(pair.first.c_str()), json2rb(pair.second));
+        const VALUE ret = rb_hash_new();
+        for (auto const &pair : v.items()) {
+            rb_hash_aset(ret, rb_utf8_str_new_cstr(pair.key().c_str()), json2rb(pair.value()));
         }
         return ret;
     }
@@ -45,49 +43,43 @@ VALUE json2rb(json5pp::value const &v) {
     return Qnil;
 }
 
-json5pp::value rb2json(VALUE v) {
+json rb2json(const VALUE v) {
     if (v == Qnil)
-        return json5pp::value(nullptr);
+        return json(nullptr);
     
     if (RB_TYPE_P(v, RUBY_T_FLOAT))
-        return json5pp::value(RFLOAT_VALUE(v));
+        return json(RFLOAT_VALUE(v));
     
     if (RB_TYPE_P(v, RUBY_T_STRING))
-        return json5pp::value(RSTRING_PTR(v));
+        return json(RSTRING_PTR(v));
     
     if (v == Qtrue || v == Qfalse)
-        return json5pp::value(RTEST(v));
+        return json(RTEST(v));
     
     if (RB_TYPE_P(v, RUBY_T_FIXNUM))
-        return json5pp::value(NUM2DBL(v));
+        return json(NUM2DBL(v));
     
     if (RB_TYPE_P(v, RUBY_T_ARRAY)) {
-        json5pp::value ret_value = json5pp::array({});
-        auto &ret = ret_value.as_array();
+        json ret_value = json::array({});
         for (int i = 0; i < RARRAY_LEN(v); i++) {
-            ret.push_back(rb2json(rb_ary_entry(v, i)));
+            ret_value.push_back(rb2json(rb_ary_entry(v, i)));
         }
         return ret_value;
     }
     
     if (RTEST(rb_funcall(v, rb_intern("is_a?"), 1, rb_cHash))) {
-        json5pp::value ret_value = json5pp::object({});
-        auto &ret = ret_value.as_object();
+        json ret_value = json::object();
         
-        
-        VALUE keys = rb_funcall(v, rb_intern("keys"), 0);
+        const VALUE keys = rb_funcall(v, rb_intern("keys"), 0);
         
         for (int i = 0; i < RARRAY_LEN(keys); i++) {
             VALUE key = rb_ary_entry(keys, i); SafeStringValue(key);
-            VALUE val = rb_hash_aref(v, key);
-            ret.emplace(RSTRING_PTR(key), rb2json(val));
+            const VALUE val = rb_hash_aref(v, key);
+            ret_value.emplace(RSTRING_PTR(key), rb2json(val));
         }
         
         return ret_value;
     }
     
     throw Exception(Exception::MKXPError, "Invalid value for JSON: %s", RSTRING_PTR(rb_inspect(v)));
-    
-    // This should be unreachable
-    return json5pp::value(0);
 }

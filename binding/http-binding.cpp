@@ -7,7 +7,6 @@
 
 #include <stdio.h>
 
-#include "util/json5pp.hpp"
 #include "binding-util.h"
 #include "json.h"
 
@@ -202,9 +201,9 @@ RB_METHOD_GUARD(httpJsonParse) {
     rb_scan_args(argc, argv, "1", &jsonv);
     SafeStringValue(jsonv);
     
-    json5pp::value v;
+    json v;
     try {
-        v = json5pp::parse5(RSTRING_PTR(jsonv));
+        v = json::parse(RSTRING_PTR(jsonv), nullptr, true, true, true);
     }
     catch (const std::exception &e) {
         throw Exception(Exception::MKXPError, "Failed to parse JSON: %s", e.what());
@@ -219,9 +218,9 @@ RB_METHOD_GUARD(httpJsonStringify) {
     
     VALUE obj;
     rb_scan_args(argc, argv, "1", &obj);
-    
-    json5pp::value v = rb2json(obj);
-    return rb_utf8_str_new_cstr(v.stringify5(json5pp::rule::space_indent<>()).c_str());
+
+    const json v = rb2json(obj);
+    return rb_utf8_str_new_cstr(v.dump(4).c_str());
 }
 RB_METHOD_GUARD_END
 

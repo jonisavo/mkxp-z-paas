@@ -10,9 +10,11 @@
 #define json_h
 
 #include "binding-util.h"
-#include "util/json5pp.hpp"
+#include "util/json.hpp"
 
-VALUE json2rb(json5pp::value const &v);
-json5pp::value rb2json(VALUE v);
+using json = nlohmann::json;
+
+VALUE json2rb(json const &v);
+json rb2json(VALUE v);
 
 #endif

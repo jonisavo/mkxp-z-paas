@@ -9,11 +9,11 @@
 #include "util/debugwriter.h"
 
 namespace mkxp_llm {
-json5pp::value Ollama::Message::to_object() const {
-    return json5pp::object({
-        {"role", this->role},
-        {"content", this->content}
-    });
+json Ollama::Message::to_object() const {
+    json obj = json::object();
+    obj["role"] = this->role;
+    obj["content"] = this->content;
+    return obj;
 }
 
 void Ollama::chat(const Request &request, const Callback& callback) {
@@ -29,19 +29,19 @@ void Ollama::chat(const Request &request, const Callback& callback) {
         client.set_read_timeout(300);
         client.set_connection_timeout(60);
         
-        auto messages = json5pp::array({});
-        auto& messages_array = messages.as_array();
+        auto messages = json::array();
         
         for (const auto& msg : request.messages) {
-            messages_array.emplace_back(msg.to_object());
+            messages.emplace_back(msg.to_object());
         }
+
+        json chat_payload = json::object();
+        chat_payload["model"] = request.model;
+        chat_payload["messages"] = messages;
+        chat_payload["stream"] = false;
+        chat_payload["think"] = false;
         
-        const auto json_str = json5pp::stringify(json5pp::object({
-            {"model", request.model},
-            {"messages", messages},
-            {"stream", false},
-            {"think", false}
-        }));
+        const auto json_str = chat_payload.dump();
         
         Debug() << "Sending to Ollama:" << json_str;
         
