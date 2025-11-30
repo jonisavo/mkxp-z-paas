@@ -101,14 +101,13 @@ static void safe_callback_call(ThreadArgs* args, const VALUE response, const VAL
 
 static VALUE ruby_thread_func(void* args_ptr) {
     const auto args = static_cast<ThreadArgs*>(args_ptr);
-
-	std::string response_body;
     
     try {
         const auto client = getOllamaClient();
 
         std::mutex mutex;
         std::condition_variable cv;
+        std::string response_body;
         bool completed = false;
         bool is_error = false;
         
