@@ -9,6 +9,14 @@
 #include "util/debugwriter.h"
 
 namespace mkxp_llm {
+static std::string truncateForLog(const std::string& text, const size_t limit = 512) {
+    if (text.size() <= limit) {
+        return text;
+    }
+
+    return text.substr(0, limit) + "...(truncated)";
+}
+
 json Ollama::Message::to_object() const {
     json obj = json::object();
     obj["role"] = this->role;
@@ -43,12 +51,12 @@ void Ollama::chat(const Request &request, const Callback& callback) {
         
         const auto json_str = chat_payload.dump();
         
-        Debug() << "Sending to Ollama:" << json_str;
+        Debug() << "Sending to Ollama:" << truncateForLog(json_str);
         
         const auto result = client.Post("/api/chat", json_str.data(), json_str.size(), "application/json");
         
         if (result) {
-            Debug() << "Got response with status" << result->status << "and body" << result->body;
+            Debug() << "Got response with status" << result->status << "and body" << truncateForLog(result->body);
             callback(result->body, false);
         } else {
             const std::string error = httplib::to_string(result.error());
