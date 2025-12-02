@@ -1101,9 +1101,13 @@ static void runRMXPScripts(BacktraceData &btData) {
 
 static void showExc(VALUE exc, const BacktraceData &btData) {
     VALUE bt = rb_funcall2(exc, rb_intern("backtrace"), 0, NULL);
-    VALUE msg = rb_funcall2(exc, rb_intern("message"), 0, NULL);
-    VALUE bt0 = rb_ary_entry(bt, 0);
-    VALUE name = rb_class_path(rb_obj_class(exc));
+    if (NIL_P(bt) || !RB_TYPE_P(bt, RUBY_T_ARRAY) || RARRAY_LEN(bt) == 0) {
+        /* backtrace can be nil (e.g. raise ... , nil) */
+        bt = rb_ary_new3(1, rb_utf8_str_new_cstr("unknown:0: in `unknown'"));
+    }
+    const VALUE msg = rb_obj_as_string(rb_funcall2(exc, rb_intern("message"), 0, NULL));
+    const VALUE bt0 = rb_obj_as_string(rb_ary_entry(bt, 0));
+    const VALUE name = rb_class_path(rb_obj_class(exc));
     
     VALUE ds = rb_sprintf("%" PRIsVALUE ": %" PRIsVALUE " (%" PRIsVALUE ")",
 #if RAPI_MAJOR >= 2
