@@ -1022,7 +1022,6 @@
 		3B10EDF22568E96A00372D13 /* module_rpg3.rb.xxd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = module_rpg3.rb.xxd; sourceTree = "<group>"; };
 		3B10EDF32568E96A00372D13 /* module_rpg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = module_rpg.cpp; sourceTree = "<group>"; };
 		3B10EDF42568E96A00372D13 /* viewport-binding.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "viewport-binding.cpp"; sourceTree = "<group>"; };
-		3B10EE1F2569348E00372D13 /* json5pp.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json5pp.hpp; sourceTree = "<group>"; };
 		3B1BC0DF266F7C0C00794D22 /* iniconfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = iniconfig.h; sourceTree = "<group>"; };
 		3B1BC0E0266F7C0C00794D22 /* iniconfig.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = iniconfig.cpp; sourceTree = "<group>"; };
 		3B1BC0EB266F924B00794D22 /* libuchardet.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libuchardet.a; path = "Dependencies/build-macosx-x86_64/lib/libuchardet.a"; sourceTree = "<group>"; };
@@ -1162,6 +1161,7 @@
 		F869ABAB2E055E7500A1945F /* ollama.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ollama.h; sourceTree = "<group>"; };
 		F869ABAC2E05605E00A1945F /* ollama.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ollama.cpp; sourceTree = "<group>"; };
 		F8DA83DF2E05E3B500206681 /* llm-binding.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llm-binding.cpp"; sourceTree = "<group>"; };
+		F8E789422EE49BEF00B02B32 /* json.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
 		FE5204152A08E27D0070038A /* CoreHaptics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreHaptics.framework; path = System/Library/Frameworks/CoreHaptics.framework; sourceTree = SDKROOT; };
 		FE52041A2A08E58D0070038A /* lanczos3.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = lanczos3.frag; path = ../shader/lanczos3.frag; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1461,6 +1461,7 @@
 		3B10ED392568E95D00372D13 /* util */ = {
 			isa = PBXGroup;
 			children = (
+				F8E789422EE49BEF00B02B32 /* json.hpp */,
 				3BFABF53267787940024C7DD /* sigslot */,
 				3B1BC0E0266F7C0C00794D22 /* iniconfig.cpp */,
 				3B10ED3C2568E95D00372D13 /* boost-hash.h */,
@@ -1475,7 +1476,6 @@
 				3B10ED3D2568E95D00372D13 /* serializable.h */,
 				3B012198261544A0001E574A /* string-util.h */,
 				3B10ED402568E95D00372D13 /* util.h */,
-				3B10EE1F2569348E00372D13 /* json5pp.hpp */,
 				968CB90E288E46F4008BC75D /* rapidcsv.h */,
 			);
 			path = util;
@@ -3584,6 +3584,7 @@
 					MKXPZ_SSL,
 					AL_LIBTYPE_STATIC,
 					GLES2_HEADER,
+					CPPHTTPLIB_OPENSSL_SUPPORT,
 					"$(MKXPZ_EXTRA_ARGS)",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -3655,6 +3656,7 @@
 					MKXPZ_SSL,
 					AL_LIBTYPE_STATIC,
 					GLES2_HEADER,
+					CPPHTTPLIB_OPENSSL_SUPPORT,
 					"$(MKXPZ_EXTRA_ARGS)",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;

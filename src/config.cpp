@@ -6,6 +6,11 @@
 //
 
 #include "config.h"
+
+#ifdef __APPLE__
+#include "system.h"
+#endif
+
 #include <SDL_filesystem.h>
 #include <assert.h>
 

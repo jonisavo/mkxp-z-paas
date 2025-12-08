@@ -9,7 +9,7 @@
 #include "util/debugwriter.h"
 
 namespace mkxp_llm {
-static std::string truncateForLog(const std::string& text, const size_t limit = 512) {
+static std::string truncateForLog(const std::string& text, const size_t limit = 5192) {
     if (text.size() <= limit) {
         return text;
     }
