@@ -29,10 +29,25 @@ public:
     struct Message {
         std::string role;
         std::string content;
+        bool has_content{false};
+
+        std::string tool_name;
+        bool has_tool_name{false};
+
+        std::string tool_call_id;
+        bool has_tool_call_id{false};
+
+        json tool_calls;
+        bool has_tool_calls{false};
         
         Message(const std::string& role, const std::string& content) {
             this->role = role;
             this->content = content;
+            this->has_content = true;
+        }
+
+        explicit Message(const std::string& role) {
+            this->role = role;
         }
         
         json to_object() const;
@@ -41,6 +56,8 @@ public:
     struct Request {
         std::string model;
         std::vector<Message> messages;
+        json tools;
+        bool has_tools{false};
         
         Request() : model(""), messages({}) {}
     };

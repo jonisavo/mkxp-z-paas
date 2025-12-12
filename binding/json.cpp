@@ -56,8 +56,8 @@ json rb2json(const VALUE v) {
     if (v == Qtrue || v == Qfalse)
         return json(RTEST(v));
     
-    if (RB_TYPE_P(v, RUBY_T_FIXNUM))
-        return json(NUM2DBL(v));
+    if (RB_TYPE_P(v, RUBY_T_FIXNUM) || RB_TYPE_P(v, RUBY_T_BIGNUM))
+        return json(NUM2LL(v));
     
     if (RB_TYPE_P(v, RUBY_T_ARRAY)) {
         json ret_value = json::array({});

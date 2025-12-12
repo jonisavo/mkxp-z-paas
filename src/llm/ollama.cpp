@@ -20,7 +20,23 @@ static std::string truncateForLog(const std::string& text, const size_t limit = 
 json Ollama::Message::to_object() const {
     json obj = json::object();
     obj["role"] = this->role;
-    obj["content"] = this->content;
+
+    if (this->has_content) {
+        obj["content"] = this->content;
+    }
+
+    if (this->has_tool_name) {
+        obj["tool_name"] = this->tool_name;
+    }
+
+    if (this->has_tool_call_id) {
+        obj["tool_call_id"] = this->tool_call_id;
+    }
+
+    if (this->has_tool_calls) {
+        obj["tool_calls"] = this->tool_calls;
+    }
+
     return obj;
 }
 
@@ -48,6 +64,10 @@ void Ollama::chat(const Request &request, const Callback& callback) {
         chat_payload["messages"] = messages;
         chat_payload["stream"] = false;
         chat_payload["think"] = false;
+
+        if (request.has_tools) {
+            chat_payload["tools"] = request.tools;
+        }
         
         const auto json_str = chat_payload.dump();
         

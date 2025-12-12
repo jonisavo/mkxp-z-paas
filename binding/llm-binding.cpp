@@ -31,6 +31,12 @@ static mkxp_llm::Ollama::Request hash2Request(const VALUE hash) {
     
     const VALUE messages = rb_hash_aref(hash, rb_str_new_cstr("messages"));
     Check_Type(messages, T_ARRAY);
+
+    const VALUE tools = rb_hash_aref(hash, rb_str_new_cstr("tools"));
+    if (!NIL_P(tools)) {
+        ret.tools = rb2json(tools);
+        ret.has_tools = true;
+    }
     
     for (int i = 0; i < RARRAY_LEN(messages); i++) {
         const VALUE message = rb_ary_entry(messages, i);
@@ -38,13 +44,37 @@ static mkxp_llm::Ollama::Request hash2Request(const VALUE hash) {
         VALUE role = rb_hash_aref(message, rb_str_new_cstr("role"));
         SafeStringValue(role);
         
-        VALUE content = rb_hash_aref(message, rb_str_new_cstr("content"));
-        SafeStringValue(content);
-        
         const std::string role_str = rb_string_value_cstr(&role);
-        const std::string content_str = rb_string_value_cstr(&content);
-        
-        ret.messages.emplace_back(mkxp_llm::Ollama::Message(role_str, content_str));
+        mkxp_llm::Ollama::Message msg(role_str);
+
+        VALUE content = rb_hash_aref(message, rb_str_new_cstr("content"));
+        if (!NIL_P(content)) {
+            SafeStringValue(content);
+            msg.content = rb_string_value_cstr(&content);
+            msg.has_content = true;
+        }
+
+        VALUE tool_name = rb_hash_aref(message, rb_str_new_cstr("tool_name"));
+        if (!NIL_P(tool_name)) {
+            SafeStringValue(tool_name);
+            msg.tool_name = rb_string_value_cstr(&tool_name);
+            msg.has_tool_name = true;
+        }
+
+        VALUE tool_call_id = rb_hash_aref(message, rb_str_new_cstr("tool_call_id"));
+        if (!NIL_P(tool_call_id)) {
+            SafeStringValue(tool_call_id);
+            msg.tool_call_id = rb_string_value_cstr(&tool_call_id);
+            msg.has_tool_call_id = true;
+        }
+
+        VALUE tool_calls = rb_hash_aref(message, rb_str_new_cstr("tool_calls"));
+        if (!NIL_P(tool_calls)) {
+            msg.tool_calls = rb2json(tool_calls);
+            msg.has_tool_calls = true;
+        }
+
+        ret.messages.emplace_back(msg);
     }
     return ret;
 }
