@@ -17,6 +17,35 @@ static std::string truncateForLog(const std::string& text, const size_t limit = 
     return text.substr(0, limit) + "...(truncated)";
 }
 
+static void truncateJsonStrings(json& value, const size_t limit) {
+    if (value.is_string()) {
+        const auto str = value.get<std::string>();
+        if (str.size() > limit) {
+            value = str.substr(0, limit) + "...(truncated)";
+        }
+        return;
+    }
+
+    if (value.is_array()) {
+        for (auto& entry : value) {
+            truncateJsonStrings(entry, limit);
+        }
+        return;
+    }
+
+    if (value.is_object()) {
+        for (auto& entry : value.items()) {
+            truncateJsonStrings(entry.value(), limit);
+        }
+    }
+}
+
+static std::string truncateJsonForLog(const json& payload, const size_t field_limit = 256) {
+    json trimmed = payload;
+    truncateJsonStrings(trimmed, field_limit);
+    return trimmed.dump();
+}
+
 json Ollama::Message::to_object() const {
     json obj = json::object();
     obj["role"] = this->role;
@@ -71,7 +100,7 @@ void Ollama::chat(const Request &request, const Callback& callback) {
         
         const auto json_str = chat_payload.dump();
         
-        Debug() << "Sending to Ollama:" << truncateForLog(json_str);
+        Debug() << "Sending to Ollama:" << truncateJsonForLog(chat_payload);
         
         const auto result = client.Post("/api/chat", json_str.data(), json_str.size(), "application/json");
         
