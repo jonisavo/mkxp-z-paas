@@ -325,11 +325,11 @@ try { exp } catch (...) {}
     for (std::string & fontSub : fontSubs)
         std::transform(fontSub.begin(), fontSub.end(), fontSub.begin(),
             [](unsigned char c) { return std::tolower(c); });
-    SET_OPT(fontScale, number);
-    SET_OPT(fontKerning, boolean);
-    SET_OPT(fontHinting, integer);
-    SET_OPT(fontHeightReporting, integer);
-    SET_OPT(fontOutlineCrop, boolean);
+    SET_OPT(fontScale, double);
+    SET_OPT(fontKerning, bool);
+    SET_OPT(fontHinting, int);
+    SET_OPT(fontHeightReporting, int);
+    SET_OPT(fontOutlineCrop, bool);
     fillStringVec(optsJ["rubyLoadpath"], rubyLoadpaths);
     
     auto &bnames = optsJ["bindingNames"];
