@@ -1,0 +1,22 @@
+{
+  "name": "mkxp-z (Ubuntu 22.04)",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
+  "workspaceFolder": "/workspaces/mkxp-z",
+  "remoteUser": "root",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      },
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools",
+        "mesonbuild.mesonbuild",
+        "ms-python.python"
+      ]
+    }
+  }
+}

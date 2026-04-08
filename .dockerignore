@@ -1,0 +1,39 @@
+# Version control
+.git
+.gitignore
+.gitmodules
+
+# IDE and editor files
+.idea/
+
+# Documentation and metadata
+README.md
+AGENTS.md
+COPYING
+screenshot.png
+
+# Build directories
+build/
+builddir/
+build-*/
+.builddir/
+meson-private/
+meson-logs/
+meson-info/
+
+# Test files
+tests/
+
+# MacOS and Windows specific build files
+macos/
+windows/
+
+# Docker files
+Dockerfile
+.dockerignore
+
+# Temporary and cache files
+*.log
+*.tmp
+*~
+.DS_Store
